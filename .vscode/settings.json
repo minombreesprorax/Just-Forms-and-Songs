@@ -1,0 +1,13 @@
+{
+    "media.player": {
+        "players": [
+            {
+                "name": "VLC player",
+                "type": "vlc",
+
+                "password": "1257",
+                "port": 8080
+            }
+        ]
+    }
+}

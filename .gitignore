@@ -1,0 +1,5 @@
+/.venv
+/build
+/dist
+/README.md
+/squares.csv
