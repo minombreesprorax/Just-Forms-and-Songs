@@ -30,7 +30,7 @@ def load_icon():
 lvl = ("", "", "")
 haswon = False
 
-activeObjects: List[Laser] = []
+activeObjects: List[Laser | BigLaser | Square] = []
 persistentObjects: List[Tuple[float, Laser]] = []
 screen: pygame.surface.Surface = None
 
@@ -47,6 +47,7 @@ def loadLevel(level: Tuple[str, str, str]):
 
     # Set the window caption
     pygame.display.set_caption("Just Forms and Songs")
+    pygame.mouse.set_visible(False)
 
     # Read events from CSV file
     events = []
@@ -139,27 +140,27 @@ def loadLevel(level: Tuple[str, str, str]):
                     next_event_index += 1
                 
                 # Check persistent lasers for despawning
-                for despawn_beat, laser in persistentObjects[:]:
+                for despawn_beat, obstacle in persistentObjects[:]:
                     if current_beat >= despawn_beat:
-                        # Remove the laser from list
-                        persistentObjects.remove((despawn_beat, laser))
-                        laser.done = True
+                        # Remove the obstacle from list
+                        persistentObjects.remove((despawn_beat, obstacle))
+                        obstacle.done = True
 
             # Render everything
             screen.fill((0, 0, 0))  # Fill the screen with black
 
             if not game_over_pause:
                 # Render and update lasers
-                for laser in activeObjects[:]:
-                    laser.update()
-                    if laser.done:
-                        activeObjects.remove(laser)
+                for obstacle in activeObjects[:]:
+                    obstacle.update()
+                    if obstacle.done:
+                        activeObjects.remove(obstacle)
                     else:
-                        laser.render_bg(screen)  # Render the laser background
+                        obstacle.render_bg(screen)  # Render the obstacle background
 
-                for laser in activeObjects[:]:
-                    laser.render(screen)  # Render the laser
-                    if laser.check_collision(player.rect):
+                for obstacle in activeObjects[:]:
+                    obstacle.render(screen)  # Render the obstacle
+                    if obstacle.check_collision(player.rect):
                         player.take_damage()  # Call the new method for damage handling
                         if player.hp <= 0:
                             pygame.mixer.music.stop()

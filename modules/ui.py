@@ -76,7 +76,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"JFAS loader", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p align=\"center\"><span style=\" font-size:28pt; font-weight:900;\">Just Forms and Songs</span></p><p align=\"center\"><span style=\" font-size:8pt;\">AKA: JSAB but made in python. (V 1.1)</span></p></body></html>", None))
+        self.label.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p align=\"center\"><span style=\" font-size:28pt; font-weight:900;\">Just Forms and Songs</span></p><p align=\"center\"><span style=\" font-size:8pt;\">AKA: JSAB but made in python. (V 1.2)</span></p></body></html>", None))
         self.Close.setText(QCoreApplication.translate("MainWindow", u"Close", None))
         self.Launch.setText(QCoreApplication.translate("MainWindow", u"Launch", None))
     # retranslateUi

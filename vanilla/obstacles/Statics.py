@@ -43,6 +43,8 @@ class Square:
         self.rotation_angle, self.rotation_speed = rotation_settings.split(";")
         self.rotation_angle = int(self.rotation_angle)
         self.rotation_speed = int(self.rotation_speed)
+        self.chkimg = None
+        self.chkrct = None
 
     def activate(self):
         self.start_time = time.time()
@@ -55,12 +57,12 @@ class Square:
             shrink_duration = 0.2
             shrink_start_time = self.duration - shrink_duration
             
-            if not self.shrink_started and self.animprogress >= shrink_start_time:
+            if not self.shrink_started and self.animprogress >= shrink_start_time and not self.manual_done:
                 self.shrink_started = True
                 self.rect.width = self.original_size[0]
                 self.rect.height = self.original_size[1]
             
-            if self.shrink_started:
+            if self.shrink_started and not self.manual_done:
                 shrink_factor = 1 - (self.animprogress - shrink_start_time) / shrink_duration
                 shrink_factor = max(shrink_factor, 0)
                 self.rect.width = int(self.original_size[0] * shrink_factor)
@@ -70,7 +72,7 @@ class Square:
             if self.animprogress >= self.duration and not self.manual_done:
                 self.done = True
 
-            if not self.shrink_started and self.moving and self.animprogress >= self.appear_time:
+            if not self.shrink_started and self.moving and self.animprogress >= self.appear_time and not self.manual_done:
                 self.rect.x += self.speed[0]
                 self.rect.y += self.speed[1]
                 self.center = self.rect.center
@@ -91,9 +93,11 @@ class Square:
 
             # Rotate the square surface
             rotated_surface = pygame.transform.rotate(square_surface, self.rotation_angle)
+            self.chkimg = rotated_surface
 
             # Get the new rect for the rotated surface, center it on the original rect
             rotated_rect = rotated_surface.get_rect(center=self.rect.center)
+            self.chkrct = rotated_rect
 
             # Blit the rotated surface onto the display
             display.blit(rotated_surface, rotated_rect.topleft)
@@ -118,11 +122,13 @@ class Square:
                 display.blit(rotated_surface, rotated_rect.topleft)
 
     def check_collision(self, other_rect: pygame.Rect) -> bool:
-        if self.shrink_started:
+        if self.shrink_started or self.animprogress < self.appear_time or self.chkimg is None:
             return False
-        if self.animprogress >= self.appear_time and hasattr(self, 'rect'):
-            return self.rect.colliderect(other_rect)
-        return False
+        
+        my_mask = pygame.mask.from_surface(self.chkimg)
+        evil_mask = pygame.mask.Mask(other_rect.size, True)
+        
+        return my_mask.overlap(evil_mask, (other_rect.x - self.chkrct.x, other_rect.y - self.chkrct.y))
 
 if __name__ == "__main__":
     pygame.init()
@@ -131,12 +137,10 @@ if __name__ == "__main__":
 
     # Define a few example squares to test
     squares = [
-        Square(square2D("(50x50);(100,100);(2,1)"), appear_time=0.5, duration=2.0, move=True, rotation_settings="0;5"),
-        Square(square2D("(100x100);(300,200)"), appear_time=1.0, duration=3.0, rotation_settings="45;0"),
-        Square(square2D("(75x25);(500,400);(-3,2)"), appear_time=0.75, duration=2.5, move=True, rotation_settings="0;-15"),
+        (0, Square(square2D("(100x100);(300,200)"), appear_time=1, duration=3.0, rotation_settings="45;5", manual_done=True))
     ]
 
-    active_squares = []
+    active_squares: list[Square] = []
     start_timer = time.time()
 
     running = True
@@ -145,11 +149,11 @@ if __name__ == "__main__":
         now = time.time() - start_timer
 
         # Activate squares based on their appear_time
-        for square in squares[:]:
+        for appear_time, square in squares[:]:
             if now >= square.appear_time and square not in active_squares:
                 active_squares.append(square)
                 square.activate()
-                squares.remove(square)
+                squares.remove((appear_time, square))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -167,6 +171,8 @@ if __name__ == "__main__":
                 active_squares.remove(square)
             else:
                 square.render_bg(screen)  # Render the square background
+                square.check_collision(collision_rect, screen)
+        
         for square in active_squares[:]:
             square.render(screen)  # Render the square
 
