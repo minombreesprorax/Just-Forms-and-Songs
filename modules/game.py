@@ -2,6 +2,7 @@ import csv
 import os
 import sys
 import pygame
+import random
 from typing import Tuple, List, Any
 from modules.Keyhole import Kh
 from modules.player import Player
@@ -184,7 +185,7 @@ def loadLevel(level: Tuple[str, str, str]):
 
     pygame.quit()
 
-def execute_command(events: List[Any], index: int, player: Player):
+def execute_command(events: List[str], index: int, player: Player):
     global haswon
     command, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, _ = events[index]  # Get the event at the current index
 
@@ -195,7 +196,8 @@ def execute_command(events: List[Any], index: int, player: Player):
 
     elif command == "Laser":
         # Create the laser
-        laser = Laser(arg1, float(arg2), float(arg3), arg4 == "True")  # Create the laser first
+        p = float(arg2) if arg2 != "rand" else round(random.random(), 2)
+        laser = Laser(arg1, p, float(arg3), arg4 == "True")  # Create the laser first
         activeObjects.append(laser)
         laser.activate()
 
@@ -204,7 +206,8 @@ def execute_command(events: List[Any], index: int, player: Player):
             persistentObjects.append((despawn_beat, laser))
         
     elif command == "BigLaser":
-        laser = BigLaser(arg1, float(arg2), float(arg3), int(arg4))
+        p = float(arg2) if arg2 != "rand" else round(random.random(), 2)
+        laser = BigLaser(arg1, p, float(arg3), int(arg4))
         activeObjects.append(laser)
         laser.activate()
         
@@ -216,6 +219,15 @@ def execute_command(events: List[Any], index: int, player: Player):
         if arg5 == "True":
             despawn_beat = float(arg7)
             persistentObjects.append((despawn_beat, square))
+    
+    elif command == "Circle":
+        circle = Circle(circle2D(arg1), float(arg2), float(arg3), arg4 == "True")
+        activeObjects.append(circle)
+        circle.activate()
+        
+        if arg4 == "True":
+            despawn_beat = float(arg5)
+            persistentObjects.append((despawn_beat, circle))
     
     elif command == "BeatLevel":
         # Fade out the music over 1 second
@@ -283,7 +295,7 @@ def reset_level(level: Tuple[str, str, str], keyhole: Kh, screen, player: Player
         for row in csv_reader:
             # Append the command and its arguments
             events.append((row['Command'], row['Arg1'], row['Arg2'], row['Arg3'], row['Arg4'], row['Arg5'], row['Arg6'], row['Arg7'], row['Arg8'], float(row['Beat'])))  # Use float for beat
-
+    
     # Sort events by beat
     events.sort(key=lambda x: x[9])  # Sort by the beat value
 

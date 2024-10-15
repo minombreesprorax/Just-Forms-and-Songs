@@ -12,7 +12,7 @@
 		- [x] Laser
 		- [x] Beeg laser
 		- [x] Squares
-		- [ ] Circles
+		- [x] Circles
 		- [ ] Square particles
 		- [ ] Circle particles
 		- [ ] Clash squares

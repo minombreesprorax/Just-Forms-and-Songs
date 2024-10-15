@@ -1,10 +1,13 @@
+import random
 from typing import List, Tuple, Literal
 import pygame
 import time
 
 class Laser:
-    def __init__(self, orientation: Literal["Horizontal", "Vertical"], position: float, timer: float = 0.5, persistent: bool = False) -> None:
-        self.orientation = orientation
+    def __init__(self, orientation: Literal["Horizontal", "Vertical"] | int | str, position: float, timer: float = 0.5, persistent: bool = False) -> None:
+        self.orientation = (orientation if orientation == "Horizontal" or "Vertical" else "Horizontal" if orientation == 0 else "Vertical" if orientation == 1 else None) if orientation != "rand" else random.choice(["Horizontal", "Vertical"])
+        if self.orientation is None:
+            raise ValueError("Orientation invalid (Must be Horizontal, Vertical, 0, 1, or rand).")
         self.position = position
         self.timer = timer
         self.animprogress = 0.0

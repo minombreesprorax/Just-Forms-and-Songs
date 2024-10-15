@@ -32,6 +32,9 @@ def loadMods() -> Optional[Iterable[Tuple[str, str, str]]]:
 
     return mod_files if mod_files else None
 
+def getColorFade(c1: Tuple[int, int, int], c2: Tuple[int, int, int], f: float) -> Tuple[int, int, int]:
+    return tuple(int(c1[i] + (c2[i] - c1[i]) * f) for i in range(3))
+
 def look0At(b: Tuple[int, int]) -> float:
     """
     Calculates the angle in degrees from the origin (0, 0) to a target position *b*.
